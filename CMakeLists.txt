@@ -5,4 +5,4 @@ project(War VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable(War main.cpp Card.hpp Card.cpp)
+add_executable(War main.cpp Card.hpp Card.cpp Deck.hpp Deck.cpp WarHelpers.hpp WarHelpers.cpp)
