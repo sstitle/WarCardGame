@@ -6,6 +6,9 @@
 #include <numeric>
 #include <random>
 #include <string>
+#include "Card.hpp"
+
+using namespace War;
 
 const std::string kBannerText{R"""(
   _____                  ____        _____   
@@ -24,100 +27,6 @@ const std::string kBannerText{R"""(
 
 )"""};
 
-enum class Suit { kClub, kSpade, kHeart, kDiamond, kMax };
-enum class Rank {
-  kAce,
-  kTwo,
-  kThree,
-  kFour,
-  kFive,
-  kSix,
-  kSeven,
-  kEight,
-  kNine,
-  kTen,
-  kJack,
-  kQueen,
-  kKing,
-  kMax
-};
-
-std::string ToString(Suit suit) {
-  switch (suit) {
-  case Suit::kClub:
-    return "Club";
-  case Suit::kDiamond:
-    return "Diamond";
-  case Suit::kHeart:
-    return "Heart";
-  case Suit::kSpade:
-    return "Spade";
-  default:
-    throw std::invalid_argument("Invalid suit value");
-  }
-}
-
-std::string ToString(Rank rank) {
-  switch (rank) {
-  case Rank::kAce:
-    return "Ace";
-  case Rank::kTwo:
-    return "Two";
-  case Rank::kThree:
-    return "Three";
-  case Rank::kFour:
-    return "Four";
-  case Rank::kFive:
-    return "Five";
-  case Rank::kSix:
-    return "Six";
-  case Rank::kSeven:
-    return "Seven";
-  case Rank::kEight:
-    return "Eight";
-  case Rank::kNine:
-    return "Nine";
-  case Rank::kTen:
-    return "Ten";
-  case Rank::kJack:
-    return "Jack";
-  case Rank::kQueen:
-    return "Queen";
-  case Rank::kKing:
-    return "King";
-  case Rank::kMax:
-  // Fall-through
-  default:
-    throw std::invalid_argument("Invalid rank value");
-  }
-}
-
-class Card {
-public:
-  Card() noexcept = default;
-  Card(Suit suit, Rank rank) : suit_(suit), rank_(rank) {}
-  Suit GetSuit() const { return suit_; }
-  Rank GetRank() const { return rank_; }
-  bool operator==(const Card &other) const {
-    return this->rank_ == other.rank_;
-  }
-  bool operator<(const Card &other) const { return this->rank_ < other.rank_; }
-  bool operator>(const Card &other) const { return this->rank_ > other.rank_; }
-
-  Card &operator++() {
-    if (rank_ == Rank::kKing) {
-      suit_ = static_cast<Suit>(static_cast<size_t>(suit_) + 1);
-      rank_ = Rank::kAce;
-    } else {
-      rank_ = static_cast<Rank>(static_cast<size_t>(rank_) + 1);
-    }
-    return *this;
-  }
-
-private:
-  Suit suit_{Suit::kMax};
-  Rank rank_{Rank::kMax};
-};
 
 static constexpr size_t kDeckSize{static_cast<size_t>(Suit::kMax) *
                                   static_cast<size_t>(Rank::kMax)};
