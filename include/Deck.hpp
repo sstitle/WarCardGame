@@ -11,7 +11,10 @@ static constexpr size_t kDeckSize{static_cast<size_t>(Suit::kMax) *
 using Deck = std::array<Card, kDeckSize>;
 
 std::string ToString(const Card &card);
+
 Deck MakeDeck();
+
 Deck MakeShuffledDeck();
+
 void PrintDeck(const Deck &deck);
 } // namespace War

@@ -1,9 +1,7 @@
 #include "Card.hpp"
 #include "Deck.hpp"
 #include "WarHelpers.hpp"
-#include <deque>
 #include <iostream>
-#include <vector>
 #include <cctype>
 
 using namespace War;

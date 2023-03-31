@@ -28,8 +28,10 @@ class Card {
 public:
   Card() noexcept = default;
   Card(Suit suit, Rank rank);
+
   Suit GetSuit() const;
   Rank GetRank() const;
+  
   bool operator==(const Card &other) const;
   bool operator<(const Card &other) const;
   bool operator>(const Card &other) const;
