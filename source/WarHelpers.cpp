@@ -1,6 +1,7 @@
 #include "WarHelpers.hpp"
 #include "Deck.hpp"
 
+#include <cctype>
 #include <iostream>
 #include <optional>
 
@@ -13,6 +14,13 @@ static constexpr std::string_view kSmallBanner{R"""(
  |__/|__/\_,_/_/ (_|_|_)  
                           
 )"""};
+
+bool UserConfirmation(std::string_view msg) {
+  std::cout << msg << " [y/n]: ";
+  char input{'?'};
+  std::cin >> input;
+  return std::tolower(input) == 'y';
+}
 
 PopResult Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
               std::vector<Card> &pot, Visibility vis) {
@@ -88,7 +96,7 @@ void Win(std::deque<Card> &winner, std::vector<Card> &pot) {
 void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
   const Deck deck{MakeShuffledDeck()};
   for (size_t i = 0; i < deck.size(); i++) {
-    auto& player = i % 2 == 0 ? player_one : player_two;
+    auto &player = i % 2 == 0 ? player_one : player_two;
     player.push_back(deck.at(i));
   }
 }

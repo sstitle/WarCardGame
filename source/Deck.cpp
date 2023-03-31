@@ -8,10 +8,6 @@
 
 namespace War {
 
-std::string ToString(const Card &card) {
-  return ToString(card.GetRank()) + " of " + ToString(card.GetSuit()) + "s";
-}
-
 Deck MakeDeck() {
   Deck deck;
   std::iota(deck.begin(), deck.end(), Card{Suit::kClub, Rank::kTwo});

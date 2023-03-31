@@ -2,7 +2,7 @@
 #include <string>
 
 namespace War {
-    
+
 enum class Suit { kClub, kSpade, kHeart, kDiamond, kMax };
 std::string ToString(Suit suit);
 
@@ -31,7 +31,7 @@ public:
 
   Suit GetSuit() const;
   Rank GetRank() const;
-  
+
   bool operator==(const Card &other) const;
   bool operator<(const Card &other) const;
   bool operator>(const Card &other) const;
@@ -42,4 +42,6 @@ private:
   Rank rank_{Rank::kMax};
 };
 
-}
+std::string ToString(const Card &card);
+
+} // namespace War

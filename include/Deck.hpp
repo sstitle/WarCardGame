@@ -1,5 +1,6 @@
 #pragma once
 #include "Card.hpp"
+
 #include <array>
 #include <string>
 
@@ -9,8 +10,6 @@ static constexpr size_t kDeckSize{static_cast<size_t>(Suit::kMax) *
                                   static_cast<size_t>(Rank::kMax)};
 
 using Deck = std::array<Card, kDeckSize>;
-
-std::string ToString(const Card &card);
 
 Deck MakeDeck();
 
