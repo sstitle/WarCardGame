@@ -15,6 +15,7 @@ int main() {
     PlayWar();
   } catch (const std::exception &e) {
     std::cout << "Caught exception: " << e.what() << std::endl;
+    return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
