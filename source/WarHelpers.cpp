@@ -2,6 +2,7 @@
 #include "Deck.hpp"
 
 #include <iostream>
+#include <optional>
 
 namespace War {
 
@@ -13,22 +14,22 @@ static constexpr std::string_view kSmallBanner{R"""(
                           
 )"""};
 
-Result Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
-           std::vector<Card> &pot, bool print) {
-  const auto card_one = player_one.back();
+PopResult Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
+              std::vector<Card> &pot, Visibility vis) {
   if (player_one.empty()) {
-    throw Result::kPlayerTwo; // Player two wins
+    throw RoundResult::kPlayerTwo; // Player two wins
+  }
+  if (player_two.empty()) {
+    throw RoundResult::kPlayerOne; // Player one wins
   }
 
+  const auto card_one = player_one.back();
   const auto card_two = player_two.back();
-  if (player_two.empty()) {
-    throw Result::kPlayerOne; // Player one wins
-  }
 
   player_one.pop_back();
   player_two.pop_back();
 
-  if (print) {
+  if (vis == Visibility::kShow) {
     std::cout << "\tPlayer Two - " << ToString(card_two) << '\n';
     std::cout << "\tPlayer One - " << ToString(card_one) << '\n';
   }
@@ -37,49 +38,52 @@ Result Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
   pot.push_back(card_two);
 
   if (card_one > card_two) {
-    return Result::kPlayerOne;
+    return PopResult::kPlayerOne;
   } else if (card_two > card_one) {
-    return Result::kPlayerTwo;
+    return PopResult::kPlayerTwo;
   } else {
-    return Result::kTie;
+    return PopResult::kTie;
   }
 }
 
-Result PlayRound(std::deque<Card> &player_one, std::deque<Card> &player_two,
-                 std::vector<Card> &pot, bool wait_for_user) {
-  const auto winner = Pop(player_one, player_two, pot, true);
+RoundResult PlayRound(std::deque<Card> &player_one,
+                      std::deque<Card> &player_two, std::vector<Card> &pot,
+                      Visibility vis) {
+  const auto winner = Pop(player_one, player_two, pot, vis);
+  const auto player = winner == PopResult::kPlayerOne ? "One" : "Two";
   switch (winner) {
-  case Result::kPlayerOne:
-    std::cout << "Player One wins the hand." << '\n';
-    return Result::kPlayerOne;
-  case Result::kPlayerTwo:
-    std::cout << "Player Two wins the hand." << '\n';
-    return Result::kPlayerTwo;
-  case Result::kTie:
-    std::cout << kSmallBanner;
-    if (wait_for_user) {
+  case PopResult::kPlayerOne: // Fall-through
+  case PopResult::kPlayerTwo:
+    if (vis == Visibility::kShow) {
+      std::cout << "Player " << player << " wins the hand." << '\n';
+    }
+    return winner == PopResult::kPlayerOne ? RoundResult::kPlayerOne
+                                           : RoundResult::kPlayerTwo;
+  case PopResult::kTie:
+    if (vis == Visibility::kShow) {
+      std::cout << kSmallBanner;
       std::cin.ignore();
     }
 
-    Pop(player_one, player_two, pot, false);
-    std::cout << "ONE\n";
-    if (wait_for_user) {
+    Pop(player_one, player_two, pot, Visibility::kHide);
+    if (vis == Visibility::kShow) {
+      std::cout << "ONE\n";
       std::cin.ignore();
     }
 
-    Pop(player_one, player_two, pot, false);
-    std::cout << "TWO\n";
-    if (wait_for_user) {
+    Pop(player_one, player_two, pot, Visibility::kHide);
+    if (vis == Visibility::kShow) {
+      std::cout << "TWO\n";
       std::cin.ignore();
     }
 
-    Pop(player_one, player_two, pot, false);
-    std::cout << "THREE\n";
-    if (wait_for_user) {
+    Pop(player_one, player_two, pot, Visibility::kHide);
+    if (vis == Visibility::kShow) {
+      std::cout << "THREE\n";
       std::cin.ignore();
     }
 
-    return PlayRound(player_one, player_two, pot, wait_for_user);
+    return PlayRound(player_one, player_two, pot, vis);
   }
 }
 
@@ -101,49 +105,35 @@ void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
   }
 }
 
-void PlayWar(bool wait_for_user) {
+void PlayWar(Visibility vis) {
   std::deque<Card> player_one;
   std::deque<Card> player_two;
   Deal(player_one, player_two);
-
   std::vector<Card> pot;
   pot.reserve(kDeckSize);
-
-  Result winner{Result::kTie};
+  std::optional<RoundResult> game_winner;
   size_t count{0u};
   try {
     while (!player_one.empty() || !player_two.empty()) {
-      std::cout << "Round #" << ++count << '\n';
-      std::cout << "Player One: " << player_one.size() << '\n';
-      std::cout << "Player Two: " << player_two.size() << '\n';
-      winner = PlayRound(player_one, player_two, pot, wait_for_user);
-      switch (winner) {
-      case Result::kPlayerOne:
-        Win(player_one, pot);
-        break;
-      case Result::kPlayerTwo:
-        Win(player_two, pot);
-        break;
-      default:
-        throw std::runtime_error("Developer error");
+      count++;
+      if (vis == Visibility::kShow) {
+        std::cout << "Round #" << count << '\n';
+        std::cout << "Player One: " << player_one.size() << '\n';
+        std::cout << "Player Two: " << player_two.size() << '\n';
       }
-      if (wait_for_user) {
+      game_winner = PlayRound(player_one, player_two, pot, vis);
+      Win(game_winner == RoundResult::kPlayerOne ? player_one : player_two,
+          pot);
+      if (vis == Visibility::kShow) {
         std::cin.ignore();
       }
     }
-  } catch (Result result) {
-    winner = result;
+  } catch (RoundResult result) {
+    game_winner = result;
   }
-
-  switch (winner) {
-  case Result::kPlayerOne:
-    std::cout << "Player One wins the game!\n";
-    break;
-  case Result::kPlayerTwo:
-    std::cout << "Player Two wins the game!\n";
-    break;
-  default:
-    throw std::runtime_error("Developer error");
-  }
+  const auto player{game_winner == RoundResult::kPlayerOne ? "One" : "Two"};
+  std::cout << "Game played for " << count << " rounds.\n";
+  std::cout << "Player " << player << " wins the game!\n";
 }
+
 } // namespace War
