@@ -71,9 +71,10 @@ bool Card::operator>(const Card &other) const {
 }
 
 Card &Card::operator++() {
-  if (rank_ == Rank::kKing) {
+  static constexpr Rank one_less_than_max = static_cast<Rank>(static_cast<size_t>(Rank::kMax) - 1);
+  if (rank_ == one_less_than_max) {
     suit_ = static_cast<Suit>(static_cast<size_t>(suit_) + 1);
-    rank_ = Rank::kAce;
+    rank_ = Rank::kTwo;
   } else {
     rank_ = static_cast<Rank>(static_cast<size_t>(rank_) + 1);
   }

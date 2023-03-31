@@ -14,7 +14,7 @@ std::string ToString(const Card &card) {
 
 Deck MakeDeck() {
   Deck deck;
-  std::iota(deck.begin(), deck.end(), Card{Suit::kClub, Rank::kAce});
+  std::iota(deck.begin(), deck.end(), Card{Suit::kClub, Rank::kTwo});
   return deck;
 }
 

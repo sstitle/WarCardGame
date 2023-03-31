@@ -7,7 +7,6 @@ enum class Suit { kClub, kSpade, kHeart, kDiamond, kMax };
 std::string ToString(Suit suit);
 
 enum class Rank {
-  kAce,
   kTwo,
   kThree,
   kFour,
@@ -20,6 +19,7 @@ enum class Rank {
   kJack,
   kQueen,
   kKing,
+  kAce,
   kMax
 };
 std::string ToString(Rank rank);
