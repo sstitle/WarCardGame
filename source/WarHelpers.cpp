@@ -46,7 +46,7 @@ Result Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
 }
 
 Result PlayRound(std::deque<Card> &player_one, std::deque<Card> &player_two,
-                 std::vector<Card> &pot) {
+                 std::vector<Card> &pot, bool wait_for_user) {
   const auto winner = Pop(player_one, player_two, pot, true);
   switch (winner) {
   case Result::kPlayerOne:
@@ -57,21 +57,29 @@ Result PlayRound(std::deque<Card> &player_one, std::deque<Card> &player_two,
     return Result::kPlayerTwo;
   case Result::kTie:
     std::cout << kSmallBanner;
-    std::cin.ignore();
+    if (wait_for_user) {
+      std::cin.ignore();
+    }
 
     Pop(player_one, player_two, pot, false);
     std::cout << "ONE\n";
-    std::cin.ignore();
+    if (wait_for_user) {
+      std::cin.ignore();
+    }
 
     Pop(player_one, player_two, pot, false);
     std::cout << "TWO\n";
-    std::cin.ignore();
+    if (wait_for_user) {
+      std::cin.ignore();
+    }
 
     Pop(player_one, player_two, pot, false);
     std::cout << "THREE\n";
-    std::cin.ignore();
+    if (wait_for_user) {
+      std::cin.ignore();
+    }
 
-    return PlayRound(player_one, player_two, pot);
+    return PlayRound(player_one, player_two, pot, wait_for_user);
   }
 }
 
@@ -93,7 +101,7 @@ void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
   }
 }
 
-void PlayWar() {
+void PlayWar(bool wait_for_user) {
   std::deque<Card> player_one;
   std::deque<Card> player_two;
   Deal(player_one, player_two);
@@ -108,7 +116,7 @@ void PlayWar() {
       std::cout << "Round #" << ++count << '\n';
       std::cout << "Player One: " << player_one.size() << '\n';
       std::cout << "Player Two: " << player_two.size() << '\n';
-      winner = PlayRound(player_one, player_two, pot);
+      winner = PlayRound(player_one, player_two, pot, wait_for_user);
       switch (winner) {
       case Result::kPlayerOne:
         Win(player_one, pot);
@@ -119,7 +127,9 @@ void PlayWar() {
       default:
         throw std::runtime_error("Developer error");
       }
-      std::cin.ignore();
+      if (wait_for_user) {
+        std::cin.ignore();
+      }
     }
   } catch (Result result) {
     winner = result;
