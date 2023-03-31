@@ -148,9 +148,10 @@ void PrintDeck(const Deck &deck) {
   }
 }
 
-enum class Result { kPlayerOne, kPlayerTwo, kTie};
+enum class Result { kPlayerOne, kPlayerTwo, kTie };
 
-Result Pop(std::deque<Card>& player_one, std::deque<Card>& player_two, std::vector<Card>& pot, bool print = true) {
+Result Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
+           std::vector<Card> &pot, bool print = true) {
   const auto card_one = player_one.back();
   const auto card_two = player_two.back();
 
@@ -174,18 +175,20 @@ Result Pop(std::deque<Card>& player_one, std::deque<Card>& player_two, std::vect
   }
 }
 
-void PlayRound(std::deque<Card>& player_one, std::deque<Card>& player_two, std::vector<Card>& pot) {
+Result PlayRound(std::deque<Card> &player_one, std::deque<Card> &player_two,
+                 std::vector<Card> &pot) {
   const auto winner = Pop(player_one, player_two, pot, true);
   switch (winner) {
   case Result::kPlayerOne:
     std::cout << "Player One wins the hand." << '\n';
-    break;
+    return Result::kPlayerOne;
   case Result::kPlayerTwo:
     std::cout << "Player Two wins the hand." << '\n';
+    return Result::kPlayerTwo;
   case Result::kTie:
     std::cout << kBannerText;
     std::cin.ignore();
-    
+
     Pop(player_one, player_two, pot, false);
     std::cout << "ONE\n";
     std::cin.ignore();
@@ -198,21 +201,18 @@ void PlayRound(std::deque<Card>& player_one, std::deque<Card>& player_two, std::
     std::cout << "THREE\n";
     std::cin.ignore();
 
-    PlayRound(player_one, player_two, pot);
+    return PlayRound(player_one, player_two, pot);
   }
 }
 
-int main() {
-  std::cout << kBannerText;
-  std::cout << "Press any key to begin\n";
-  std::cin.ignore();
+void Win(std::deque<Card> &winner, std::vector<Card> &pot) {
+  for (const auto &card : pot) {
+    winner.push_front(card);
+  }
+}
 
+void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
   const Deck deck{MakeShuffledDeck()};
-
-  std::deque<Card> player_one;
-  std::deque<Card> player_two;
-
-  // Deal the cards
   for (size_t i = 0; i < deck.size(); i++) {
     if (i % 2 == 0) {
       player_one.push_back(deck.at(i));
@@ -220,6 +220,16 @@ int main() {
       player_two.push_back(deck.at(i));
     }
   }
+}
+
+void PlayWar() {
+  std::cout << kBannerText;
+  std::cout << "Press any key to begin\n";
+  std::cin.ignore();
+
+  std::deque<Card> player_one;
+  std::deque<Card> player_two;
+  Deal(player_one, player_two);
 
   std::vector<Card> pot;
   pot.reserve(kDeckSize);
@@ -229,8 +239,26 @@ int main() {
     std::cout << "Round #" << ++count << '\n';
     std::cout << "Player One: " << player_one.size() << '\n';
     std::cout << "Player Two: " << player_two.size() << '\n';
-    PlayRound(player_one, player_two, pot);
+    const auto winner = PlayRound(player_one, player_two, pot);
+    switch (winner) {
+    case Result::kPlayerOne:
+      Win(player_one, pot);
+      break;
+    case Result::kPlayerTwo:
+      Win(player_two, pot);
+      break;
+    default:
+      throw std::runtime_error("Developer error");
+    }
     std::cin.ignore();
+  }
+}
+
+int main() {
+  try {
+    PlayWar();
+  } catch (const std::exception &e) {
+    std::cout << "Caught exception: " << e.what() << std::endl;
   }
   return EXIT_SUCCESS;
 }
