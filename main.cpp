@@ -153,7 +153,14 @@ enum class Result { kPlayerOne, kPlayerTwo, kTie };
 Result Pop(std::deque<Card> &player_one, std::deque<Card> &player_two,
            std::vector<Card> &pot, bool print = true) {
   const auto card_one = player_one.back();
+  if (player_one.empty()) {
+    throw Result::kPlayerTwo; // Player two wins
+  }
+
   const auto card_two = player_two.back();
+  if (player_two.empty()) {
+    throw Result::kPlayerOne; // Player one wins
+  }
 
   player_one.pop_back();
   player_two.pop_back();
@@ -209,6 +216,7 @@ void Win(std::deque<Card> &winner, std::vector<Card> &pot) {
   for (const auto &card : pot) {
     winner.push_front(card);
   }
+  pot.clear();
 }
 
 void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
@@ -234,23 +242,40 @@ void PlayWar() {
   std::vector<Card> pot;
   pot.reserve(kDeckSize);
 
+
+  Result winner{Result::kTie};
   size_t count{0u};
-  while (!player_one.empty() || !player_two.empty()) {
-    std::cout << "Round #" << ++count << '\n';
-    std::cout << "Player One: " << player_one.size() << '\n';
-    std::cout << "Player Two: " << player_two.size() << '\n';
-    const auto winner = PlayRound(player_one, player_two, pot);
-    switch (winner) {
+  try {
+    while (!player_one.empty() || !player_two.empty()) {
+      std::cout << "Round #" << ++count << '\n';
+      std::cout << "Player One: " << player_one.size() << '\n';
+      std::cout << "Player Two: " << player_two.size() << '\n';
+      winner = PlayRound(player_one, player_two, pot);
+      switch (winner) {
+      case Result::kPlayerOne:
+        Win(player_one, pot);
+        break;
+      case Result::kPlayerTwo:
+        Win(player_two, pot);
+        break;
+      default:
+        throw std::runtime_error("Developer error");
+      }
+      std::cin.ignore();
+    }
+  } catch (Result result) {
+    winner = result;
+  }
+
+  switch (winner) {
     case Result::kPlayerOne:
-      Win(player_one, pot);
+      std::cout << "Player One wins the game!\n";
       break;
     case Result::kPlayerTwo:
-      Win(player_two, pot);
+      std::cout << "Player Two wins the game!\n";
       break;
     default:
       throw std::runtime_error("Developer error");
-    }
-    std::cin.ignore();
   }
 }
 
