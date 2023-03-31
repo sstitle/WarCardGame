@@ -63,26 +63,17 @@ RoundResult PlayRound(std::deque<Card> &player_one,
     if (vis == Visibility::kShow) {
       std::cout << kSmallBanner;
       std::cin.ignore();
-    }
-
-    Pop(player_one, player_two, pot, Visibility::kHide);
-    if (vis == Visibility::kShow) {
       std::cout << "ONE\n";
       std::cin.ignore();
-    }
-
-    Pop(player_one, player_two, pot, Visibility::kHide);
-    if (vis == Visibility::kShow) {
       std::cout << "TWO\n";
       std::cin.ignore();
-    }
-
-    Pop(player_one, player_two, pot, Visibility::kHide);
-    if (vis == Visibility::kShow) {
       std::cout << "THREE\n";
       std::cin.ignore();
     }
 
+    Pop(player_one, player_two, pot, Visibility::kHide);
+    Pop(player_one, player_two, pot, Visibility::kHide);
+    Pop(player_one, player_two, pot, Visibility::kHide);
     return PlayRound(player_one, player_two, pot, vis);
   }
 }
@@ -97,11 +88,8 @@ void Win(std::deque<Card> &winner, std::vector<Card> &pot) {
 void Deal(std::deque<Card> &player_one, std::deque<Card> &player_two) {
   const Deck deck{MakeShuffledDeck()};
   for (size_t i = 0; i < deck.size(); i++) {
-    if (i % 2 == 0) {
-      player_one.push_back(deck.at(i));
-    } else {
-      player_two.push_back(deck.at(i));
-    }
+    auto& player = i % 2 == 0 ? player_one : player_two;
+    player.push_back(deck.at(i));
   }
 }
 
@@ -133,8 +121,8 @@ void PlayWar(Visibility vis) {
     result = game_result;
   }
   const auto player{result == RoundResult::kPlayerOne ? "One" : "Two"};
-  std::cout << "Game played for " << count << " rounds.\n";
   std::cout << "Player " << player << " wins the game!\n";
+  std::cout << "Game played for " << count << " rounds.\n";
 }
 
 } // namespace War
